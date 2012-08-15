@@ -1,0 +1,18 @@
+# dune_folder_movieset_template.txt
+background_order = before_all
+background_path = background.jpg
+use_icon_view = yes
+icon_valign = center
+num_rows = 1
+num_cols = 5
+paint_captions = no
+paint_help_line = no
+paint_path_box = no
+paint_icon_selection_box = yes
+paint_scrollbar = yes
+paint_content_box_background = yes
+paint_icons = yes
+content_box_y = 540
+content_box_height = 500
+icon_selection_box_width = 315
+icon_selection_box_height = 455

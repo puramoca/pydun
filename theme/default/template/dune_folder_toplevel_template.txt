@@ -1,0 +1,21 @@
+# dune_folder_toplevel_template.txt
+background_order = before_all
+background_path = background.jpg
+background_width = 1920
+background_height = 1080
+use_icon_view = yes
+icon_valign = center
+icon_scale_factor = 0.80
+icon_sel_scale_factor = 1
+num_cols = 3
+num_rows = 3
+content_box_padding_left = 0
+content_box_padding_right = 0
+content_box_padding_top = 0
+content_box_padding_bottom = 0
+paint_captions = no
+paint_help_line = no
+paint_path_box = no
+paint_icon_selection_box = no
+paint_content_box_background = no
+paint_scrollbar = yes
