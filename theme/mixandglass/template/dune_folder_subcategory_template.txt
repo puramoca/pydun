@@ -1,0 +1,21 @@
+# dune_folder_subcategory_template.txt
+background_order = before_all
+background_path = ../../background.jpg
+background_width = 1920
+background_height = 1080
+use_icon_view = yes
+icon_valign = center
+num_cols = 5
+num_rows = 2
+content_box_padding_left = 0
+content_box_padding_right = 0
+content_box_padding_top = 0
+content_box_padding_bottom = 0
+paint_captions = no
+paint_help_line = no
+paint_path_box = no
+paint_icon_selection_box = yes
+icon_selection_box_width = 315
+icon_selection_box_height = 455
+paint_content_box_background = no
+paint_scrollbar = yes

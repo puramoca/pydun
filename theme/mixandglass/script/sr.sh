@@ -1,0 +1,1 @@
+export TRANSLATED=( "Category#Категорија" "PG#У пратњи родитеља" "Certification#Сертификат" "Genres#Жанрови" "Other#Остало" "Title#Наслов" "Year#Година" "TV Shows#ТВ емисије" "Last Year#Прошла година" "This Year#Ова година" "Not Rated#Није оцењено" "HD#Висока резолуција" "Top250#250 најбоље оцењених" "Approved#Одобрено" "Game of Thrones#Игра престола" )
