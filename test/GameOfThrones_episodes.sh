@@ -1,11 +1,3 @@
-#!/bin/bash
-
-# It is totally up to this script to produce icon for given episode - whether
-# it'll copy existing one or use any graphic tool to do so, we don't care. 
-
-# Result must be in ${PYD_PART_THUMB}
-
-# Uncomment for testing
 PYD_BCKGR_IMAGE=warty_final_ubuntu_2-wallpaper-1920x1080.jpg
 PYD_CAT_DUFO_TPL=/home/zoli/project/python/pydis/template/dune_folder_category_template.txt
 PYD_CATEGORY_DIRPATH=/tmp/pydis/Year/Last_Year
@@ -49,8 +41,8 @@ PYD_MOV_YEAR=2011
 PYD_OUT_DIR=/tmp/pydis
 PYD_PART_AIRED=2011-04-17
 PYD_PART_PLOT="A Night’s Watch deserter is tracked down outside of Winterfell, prompting swift justice by Lord Eddard “Ned” Stark and raising concerns about the dangers in the lawless lands north of the Wall. Returning home, Ned learns from his wife Catelyn that his mentor, Jon Arryn, has died in the Westeros capital of King’s Landing, and that King Robert is on his way north to offer Ned Arryn’s position as the King’s Hand. Meanwhile, across the Narrow Sea in Pentos, Viserys Targaryen hatches a plan to..."
-PYD_PART_THUMB="/tmp/pydis/Library/Game Of Thrones S01E01 - Winter Is Coming/icon_part01.jpg"
-PYD_PART_TITLE="Зима долази"
+PYD_PART_THUMB="/tmp/pydis/Library/Game Of Thrones S01E01 - Winter Is Coming/icon_part1.aai"
+PYD_PART_TITLE="Winter Is Coming"
 PYD_PART_VIDIMG="/digital/yamj/Jukebox/Game Of Thrones S01E01 - Winter Is Coming.videoimage.jpg"
 PYD_SCRIPTS_DIR=/home/zoli/project/python/pydis/script
 PYD_SRC_BCKGR_IMAGE="/digital/yamj/Jukebox/Game Of Thrones S01E01 - Winter Is Coming.background.jpg"
@@ -60,72 +52,3 @@ PYD_TL_DUFO_TPL=/home/zoli/project/python/pydis/template/dune_folder_toplevel_te
 PYD_TPL_DIR=/home/zoli/project/python/pydis/template
 PYD_TVSET_DUFO_TPL=/home/zoli/project/python/pydis/template/dune_folder_tvset_template.txt
 PYD_YAMJ_DIR=/digital/yamj/Jukebox
-
-touch "${PYD_PART_THUMB}"
-exit 0
-
-# Total height of picture
-TOTALHEIGHT=220
-# Total width in picture, in pixels
-TOTALWIDTH=1700
-PARTWIDTH=`echo "${TOTALHEIGHT}-20" | bc -l`
-PLOTWIDTH=1120
-VIDIMGWIDTH=`echo "${TOTALWIDTH}-${PLOTWIDTH}-${PARTWIDTH}" | bc -l`
-NOIMAGE=0
-# Border between video image and text, in pixels
-BORDERWITH=20
-LESSBORDER=`echo "${PLOTWIDTH}-${BORDERWITH}" | bc -l`
-HALFBORDERWIDTH=`echo "scale=0; ${BORDERWITH} / 2" | bc -l`
-PLOTHEIGHT=`echo "${TOTALHEIGHT}-${HALFBORDERWIDTH}-50" | bc -l`
-
-PLOTLENGTH=${#PYD_PART_PLOT}
-if [ ${PLOTLENGTH} -gt 350 ]; then
-    # Cut first 350 characters of movie plot
-    CUTOFPLOT="${PYD_PART_PLOT:0:350} ..."
-else
-    CUTOFPLOT=${PYD_PART_PLOT}
-fi
-
-# Make image displaying movie part
-convert -background black -fill yellow -size ${PARTWIDTH}x${TOTALHEIGHT} \
-    -pointsize 140 -gravity center label:"${PYD_MOV_PART}" moviepart.png
-
-# Create soft edge around video image
-if [ ! -z "${PYD_PART_VIDIMG}" ]; then
-    if [ -f "${PYD_PART_VIDIMG}" ]; then
-        convert -trim -resize ${VIDIMGWIDTH}x${TOTALHEIGHT} "${PYD_PART_VIDIMG}" -virtual-pixel transparent \
-            -channel A -blur 0x8 -level 50%,100% +channel soft_edge.png
-        # Remove transparency
-        convert soft_edge.png -background black -alpha remove -alpha off soft_edge.jpg
-    else
-        NOIMAGE=1
-    fi
-else
-    NOIMAGE=1
-fi
-
-if [ $NOIMAGE -eq 1 ]; then
-    convert -size ${VIDIMGWIDTH}x${TOTALHEIGHT} -background black -gravity center \
-        -fill grey caption:"No image available" -virtual-pixel transparent \
-        -channel A -blur 0x8 -level 50%,100% +channel soft_edge.png
-    convert soft_edge.png -background black -alpha remove -alpha off soft_edge.jpg
-fi
-
-# Create label and caption with part title and plot
-convert -background black -fill yellow -gravity West -size ${LESSBORDER}x50 \
-    label:"${PYD_PART_TITLE}" titlemovie1.png
-convert \( titlemovie1.png -background black -gravity SouthWest -splice ${BORDERWITH}x${HALFBORDERWIDTH} \) \
-    titlemovie2.png
-
-convert -background black -fill white -gravity NorthWest -size ${LESSBORDER}x${PLOTHEIGHT} \
-    caption:"${CUTOFPLOT}" plotmovie1.png
-convert \( plotmovie1.png -background black -gravity West -splice ${BORDERWITH}x0 \) \
-    plotmovie2.png
-
-# Put them all together
-convert \( moviepart.png soft_edge.jpg +append \) \
-        \( titlemovie2.png plotmovie2.png -append \) \
-        +append "${PYD_PART_THUMB}"
-        
-rm -f moviepart*.png soft_edge.??g titlemovie*.png plotmovie*.png 
-exit 0

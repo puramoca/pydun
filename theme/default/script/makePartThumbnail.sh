@@ -14,7 +14,7 @@ COLOUR2=black
 DIMENSION=80
 POINTSIZE=72
 
-# Make image displaying movie part
+# Make image displaying movie part - usually a number surrounded by some border
 
 convert -background ${COLOUR1} -fill ${COLOUR2} -size ${DIMENSION}x${DIMENSION} \
     -pointsize ${POINTSIZE} -gravity center label:${PYD_PART_MOV} "${PYD_PART_THUMB}"
