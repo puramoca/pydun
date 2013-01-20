@@ -37,6 +37,8 @@ class PydCategoryDir:
             del os.environ[ 'PYD_CATEGORY_DIRPATH' ]
         if os.environ.has_key( 'PYD_CATEGORY_NAME' ):
             del os.environ[ 'PYD_CATEGORY_NAME' ]
+        if os.environ.has_key( 'PYD_CATEGORY' ):
+            del os.environ[ 'PYD_CATEGORY' ]
 
 
     def debug(self, aText):
@@ -56,9 +58,9 @@ class PydCategoryDir:
 
 
     def makeIcons(self, aDirPath):
-        iconPath = os.path.join( aDirPath, pydisconf.PYD_ICON_FILE )
+        iconPath = os.path.join( aDirPath, pydisconf.PYD_ICON_CAT_FILE )
         if pydisconf.PYD_ICON_USE_SEL:
-            iconSelPath = os.path.join( aDirPath, pydisconf.PYD_ICON_SEL_FILE )
+            iconSelPath = os.path.join( aDirPath, pydisconf.PYD_ICON_CAT_SEL_FILE )
         
         if pydisconf.PYD_CLEAN_OUT_DIR or not os.path.exists( iconPath ):
             # Make icon or copy existing one
@@ -90,10 +92,14 @@ class PydCategoryDir:
                 lItem.append( 'item.%d.caption = %05d - %s\n' % ( lIndex, lIndex + 1, movie.originalTitle ) )
                 lItem.append( 'item.%d.media_action = browse\n' % ( lIndex ) )
                 lItem.append( 'item.%d.media_url = ../../Library/%s\n' % ( lIndex, movie.baseFilename ) )
+                if movie.isSet:
+                    lIconFile = pydisconf.PYD_ICON_CAT_FILE
+                else:
+                    lIconFile = pydisconf.PYD_ICON_FILE
                 lItem.append( 'item.%d.icon_path = ../../Library/%s/%s\n' % \
-                    ( lIndex, movie.baseFilename, pydisconf.PYD_ICON_FILE ) )
+                    ( lIndex, movie.baseFilename, lIconFile ) )
                 lItem.append( 'item.%d.icon_sel_path = ../../Library/%s/%s\n' % \
-                    ( lIndex, movie.baseFilename, pydisconf.PYD_ICON_FILE ) )
+                    ( lIndex, movie.baseFilename, lIconFile ) )
                 lItem.append( 'item.%d.icon_scale_factor = %s\n' % ( lIndex, pydisconf.PYD_ICON_SCALE_FACTOR ) )
                 lItem.append( 'item.%d.icon_sel_scale_factor = 1\n' % ( lIndex ) )
                 lItem.append( 'item.%d.icon_valign = center\n' % ( lIndex ) )

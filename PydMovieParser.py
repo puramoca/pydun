@@ -26,12 +26,12 @@ class PydMovieParser(xml.sax.handler.ContentHandler):
         self.logger = logging.getLogger( __name__ )
         self.movies = []
         self.movie = None
-        self.movieElems = ('title', 'originalTitle', 'year', 'releaseDate', 'top250', 'plot', 'outline', 'quote', 'tagline', 'country', 'company', 'runtime', 'certification', 'language', 'subtitles', 'container', 'videoCodec', 'audioCodec', 'audioChannels', 'resolution', 'videoSource', 'videoOutput', 'aspect', 'fps', 'season', 'set')
+        self.movieElems = ( 'title', 'originalTitle', 'year', 'releaseDate', 'top250', 'plot', 'outline', 'quote', 'tagline', 'country', 'company', 'runtime', 'certification', 'language', 'subtitles', 'container', 'videoCodec', 'audioCodec', 'audioChannels', 'resolution', 'videoSource', 'videoOutput', 'aspect', 'fps', 'season', 'set' )
         # Some attributes we like without special chars
-        self.movieReplAttrs = ('baseFilenameBase', 'baseFilename')
+        self.movieReplAttrs = ( 'baseFilenameBase', 'baseFilename' )
         # Some attributes we must unquote
         self.movieUnqAttrs = ( 'posterFile', 'detailPosterFile', 'fanartFile', 'thumbnail', 'bannerFile', 'clearlogoFile', 'clearartFile', 'tvthumbFile' )
-        self.movieListAttrs = ('director', 'writer', 'actor')
+        self.movieListAttrs = ( 'director', 'writer', 'actor' )
         self.movieHashAttrs = ( 'rating' )
         # Attributes appearing under <file>...</file> section
         self.moviePartsAttrs = ( 'filelocation', 'filetitle', 'firstaired', 'fileplot', 'fileimagefile', 'fileurl' )

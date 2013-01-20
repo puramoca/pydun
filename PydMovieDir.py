@@ -37,7 +37,7 @@ class PydMovieDir:
     
     # Remove all environment variables defined here
     def __del__(self):
-        self.delMovieEnvVars()
+		self.delMovieEnvVars()
 
 
     def debug(self, arg):
@@ -66,6 +66,7 @@ class PydMovieDir:
         if not os.path.exists( self.movieDirPath ):
             try:
                 os.mkdir( self.movieDirPath, 0750 )
+                self.debug( ' ' )
                 self.debug( "Movie data will be in '%s'" % self.movieDirPath )
             except OSError, errorText:
                 self.error( "Can't create directory '%s': %s" % (self.movieDirPath, errorText) )
@@ -110,6 +111,7 @@ class PydMovieDir:
                 os.environ[ 'PYD_SRC_ICON_IMAGE' ] = iconSrc
                 os.environ[ 'PYD_DST_ICON_IMAGE' ] = iconDest
                 os.system( pydisconf.PYD_SCR_MAKE_MOVIE_ICON )
+                
                 # Check once again if script made anything
                 if not os.path.exists( iconDest ):
                     self.error( "Movie icon script did not produce an icon (%s)" % iconDest )
@@ -172,6 +174,7 @@ class PydMovieDir:
                 if self.movie.isTV:
                     os.environ[ 'PYD_MOV_IS_TVSET' ] = '1'
                 os.system( pydisconf.PYD_SCR_MAKE_BCKGR_IMAGE )
+                
                 self.debug( "Picture '%s' was made a background '%s' by script '%s'" %
                     (bgrSrc, bgrDest, pydisconf.PYD_SCR_MAKE_BCKGR_IMAGE) )
     ### end makeBackgroundImage ###
@@ -218,7 +221,6 @@ class PydMovieDir:
 
     def make1MoviePartItem(self, aPart):
         self.makeMovieDir()
-        self.makeBackgroundImage()
         self.movie.isTV = False # To pull movie dune_folder.txt template
         self.copyDuneFolderTxt()
         self.movie.isTV = True
@@ -282,7 +284,9 @@ class PydMovieDir:
             os.environ[ 'PYD_PART_PLOT'   ] = aPart.filePlot
             os.environ[ 'PYD_PART_AIRED'  ] = aPart.firstAired
             os.environ[ 'PYD_PART_VIDIMG' ] = os.path.join( pydisconf.PYD_YAMJ_DIR, aPart.fileImageFile )
-    
+	    
+	    self.makeBackgroundImage()
+	    
         os.system( pydisconf.PYD_SCR_MAKE_PART_THUMB )
         self.debug( "Thumbnail '%s' for TV episode / movie part %d was made by script '%s'" % \
             (thumbPartDest, aPart.part, pydisconf.PYD_SCR_MAKE_PART_THUMB) )
@@ -318,7 +322,7 @@ class PydMovieDir:
                 self.itemList.append( 'item.0.media_action = play\n' )
             else:
                 # Movie is in two or more parts (e.g. LOTR, Extended Edition) - or it is TV series
-                # Create icons for each part. Movie starts when user presses corresponding one
+                # Create icons for each part. Movie starts when user presses corresponding part number
                 self.dfIndex = 0
                 self.itemList.append( 'paint_icon_selection_box = yes\n' )
                 self.itemList.append( 'paint_icons = yes\n' )
@@ -364,6 +368,7 @@ class PydMovieDir:
         os.environ[ 'PYD_MOV_VCODEC' ] = self.movie.videoCodec
         os.environ[ 'PYD_MOV_ACODEC' ] = self.movie.audioCodec
         os.environ[ 'PYD_MOV_ASPECT' ] = self.movie.aspect
+        os.environ[ 'PYD_MOV_CONTAINER' ] =  self.movie.container
         os.environ[ 'PYD_MOV_FPS' ] = self.movie.fps
         os.environ[ 'PYD_MOV_DIRECTORS' ] = ", ".join( self.movie.directors )
         os.environ[ 'PYD_MOV_WRITERS' ] = ", ".join( self.movie.writers )
@@ -383,7 +388,8 @@ class PydMovieDir:
             'PYD_MOV_RUNTIME', 'PYD_MOV_CERT', 'PYD_MOV_LANG', 'PYD_MOV_SUBTITLES', 'PYD_MOV_VCODEC', \
             'PYD_MOV_ACODEC', 'PYD_MOV_ASPECT', 'PYD_MOV_FPS', 'PYD_MOV_DIRECTORS', 'PYD_MOV_RATINGS', \
             'PYD_MOV_WRITERS', 'PYD_MOV_ACTORS', 'PYD_MOV_IS_TVSET', 'PYD_PART_THUMB', 'PYD_PART_SEL_THUMB' \
-            'PYD_PART_MOV' )
+            'PYD_CATEGORY_DIRPATH', 'PYD_CATEGORY_NAME', 'PYD_CATEGORY', 'PYD_PART_AIRED', 'PYD_PART_PLOT', \
+            'PYD_PART_TITLE', 'PYD_PART_VIDIMG', 'PYD_PART_SEL_THUMB', 'PYD_PART_MOV', 'PYD_MOV_CONTAINER' )
         map( self.delEnvVar, eVars )
     ### delMovieEnvVars ###
 
@@ -415,6 +421,8 @@ class PydMovieDir:
             if not self.copyDuneFolderTxt():
                 self.appendMovieParts()
             self.delMovieEnvVars()
+            self.debug( '------- Movie/part created -------' )
+            self.debug( ' ' )
         ### for
     ### make ###
 

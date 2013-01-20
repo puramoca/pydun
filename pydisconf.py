@@ -20,6 +20,8 @@ PYD_TPL_DIR              = None
 PYD_IMAGE_DIR            = None
 PYD_LOGO_IMAGE           = None
 PYD_BCKGR_IMAGE          = None
+PYD_ICON_CAT_FILE        = None
+PYD_ICON_CAT_SEL_FILE    = None
 PYD_ICON_FILE            = None
 PYD_ICON_THUMB_FILE      = None
 PYD_ICON_SEL_FILE        = None
@@ -31,9 +33,13 @@ PYD_ICON_CATEGORY_HEIGHT = 233
 PYD_ICON_SCALE_FACTOR    = 0.85
 PYD_ICON_DEFAULT         = None # File name of default movie/category icon
 PYD_ICON_MASK            = 'icon%%s.jpg' # Mask to create other icons
+PYD_ICON_CAT_MASK        = 'icon%%s.jpg'
+PYD_LANG                 = 'en'
+PYD_LOCALE_DIR           = None
 PYD_TVICON_SCALE_FACTOR  = 1
 PYD_YAMJ_DIR             = None # Directory with items produced by YAMJ
 PYD_SCRIPTS_DIR          = None
+PYD_THEME                = 'default'
 PYD_THEME_DIR            = None
 PYD_SCR_MAKE_CAT_ICON    = None
 PYD_SCR_MAKE_BCKGR_IMAGE = None
@@ -67,7 +73,8 @@ CONFIG_DEFAULTS = {
         'icon.category.height'          : PYD_ICON_CATEGORY_HEIGHT,
         'icon.scale.factor'             : PYD_ICON_SCALE_FACTOR,
         'icon.tvepisode.scale.factor'   : PYD_TVICON_SCALE_FACTOR,
-        'theme.dir'                     : './theme/default/'
+        'theme.dir'                     : './theme/',
+        'theme'                         : 'default'
 }
 
 if os.name == 'nt':
@@ -87,7 +94,7 @@ else:
     _CONFIG_UNIX = {
         'output.directory'              : '/tmp/%s' % MYSELF,
         'log.file'                      : '/tmp/%s.log' % MYSELF,
-        'Script.Make.Category.Icon'     : 'makeCategoryIcon.sh',
+        'script.make.category.icon'     : 'makeCategoryIcon.sh',
         'script.make.background.image'  : 'makeBackgroundImage.sh',
         'script.make.thumbnail.image'   : 'makeThumbnailImage.sh',
         'script.make.part.thumbnail'    : 'makePartThumbnail.sh',
@@ -122,7 +129,8 @@ def checkConfig( config ):
     global PYD_SCR_MAKE_THUMB_IMAGE, PYD_SCR_MAKE_PART_THUMB, PYD_SCR_MAKE_EP_THUMB
     global PYD_TVICON_SCALE_FACTOR, PYD_ICON_MASK, PYD_THEME_DIR, PYD_LOGO_IMAGE
     global PYD_SCR_MAKE_MOVIE_ICON, PYD_ICON_DEFAULT, PYD_ICON_CATEGORY_WIDTH
-    global PYD_ICON_CATEGORY_HEIGHT
+    global PYD_ICON_CATEGORY_HEIGHT, PYD_ICON_CAT_MASK, PYD_ICON_CAT_FILE
+    global PYD_ICON_CAT_SEL_FILE, PYD_LANG, PYD_LOCALE_DIR
     
     if not config.has_section( 'YAMJ' ):
         error( "Configuration file does not have section 'YAMJ'" )
@@ -157,7 +165,7 @@ def checkConfig( config ):
     PYD_CLEAN_OUT_DIR = config.getboolean( MYSELF, 'clean.output.dir' )
     
     PYD_THEME_DIR = config.get( themeSectionName, 'theme.dir' )
-    PYD_THEME_DIR = os.path.abspath( os.path.normpath( PYD_THEME_DIR ) )
+    PYD_THEME_DIR = os.path.abspath( os.path.normpath( os.path.join( PYD_THEME_DIR, PYD_THEME ) ) )
     if not os.path.exists( PYD_THEME_DIR ):
         error( "Theme directory '%s' does not exist" % PYD_THEME_DIR )
     os.environ[ 'PYD_THEME_DIR' ] = PYD_THEME_DIR
@@ -177,6 +185,11 @@ def checkConfig( config ):
         error( "Scripts directory '%s' does not exist" % PYD_SCRIPTS_DIR )
     os.environ[ 'PYD_SCRIPTS_DIR' ] = PYD_SCRIPTS_DIR
     
+    PYD_LOCALE_DIR = os.path.join( PYD_THEME_DIR, 'locale' )
+    if not os.path.exists( PYD_LOCALE_DIR ):
+        error( "Locale directory '%s' does not exist" % PYD_LOCALE_DIR )
+    os.environ[ 'PYD_LOCALE_DIR' ] = PYD_LOCALE_DIR
+	
     PYD_CAT_DUFO_TPL = config.get( templateSectionName, 'category.dune.folder.templ' )
     PYD_CAT_DUFO_TPL = os.path.join( PYD_TPL_DIR, PYD_CAT_DUFO_TPL )
     if not os.path.exists( PYD_CAT_DUFO_TPL ):
@@ -226,9 +239,13 @@ def checkConfig( config ):
     os.environ[ 'PYD_LOGO_IMAGE' ] = PYD_LOGO_IMAGE
     
     PYD_ICON_MASK = config.get( imageSectionName, 'icon.mask' )
+    PYD_ICON_CAT_MASK = config.get( imageSectionName, 'icon.category.mask' )
     
     PYD_ICON_FILE = PYD_ICON_MASK % ""
+    PYD_ICON_CAT_FILE = PYD_ICON_CAT_MASK % ""
+    
     os.environ[ 'PYD_ICON_FILE' ] = PYD_ICON_FILE
+    os.environ[ 'PYD_ICON_CAT_FILE' ] = PYD_ICON_CAT_FILE
     
     PYD_ICON_THUMB_FILE = PYD_ICON_MASK % "_thumb"
     os.environ[ 'PYD_ICON_THUMB_FILE' ] = PYD_ICON_THUMB_FILE
@@ -236,15 +253,21 @@ def checkConfig( config ):
     PYD_ICON_SEL_FILE = PYD_ICON_MASK % "_sel"
     os.environ[ 'PYD_ICON_SEL_FILE' ] = PYD_ICON_SEL_FILE
     
+    PYD_ICON_CAT_SEL_FILE = PYD_ICON_CAT_MASK % "_sel"
+    os.environ[ 'PYD_ICON_CAT_SEL_FILE' ] = PYD_ICON_CAT_SEL_FILE
+    
     PYD_ICON_USE_SEL = config.getboolean( imageSectionName, 'icon.use.selected' )
     os.environ[ 'PYD_ICON_USE_SEL' ] = str(PYD_ICON_USE_SEL)
+    
+    PYD_LANG = config.get( MYSELF, 'language' )
+    os.environ[ 'PYD_LANG' ] = PYD_LANG
     
     try:
         PYD_ICON_WIDTH = config.getint( imageSectionName, 'icon.width' )
     except ValueError:
         log.warning( "Icon width in configuration file is NOT an integer, using default: %d" % PYD_ICON_WIDTH)
     if PYD_ICON_WIDTH < 0:
-        error("Icon width must be greater than 0")
+        error( "Icon width must be greater than 0" )
     os.environ[ 'PYD_ICON_WIDTH' ] = str(PYD_ICON_WIDTH)
     
     try:
@@ -252,7 +275,7 @@ def checkConfig( config ):
     except ValueError:
         log.warning( "Icon height in configuration file is NOT an integer, using default: %d" % PYD_ICON_HEIGHT )
     if PYD_ICON_HEIGHT < 0:
-        error("Icon height must be greater than 0")
+        error( "Icon height must be greater than 0" )
     os.environ[ 'PYD_ICON_HEIGHT' ] = str(PYD_ICON_HEIGHT)
     
     try:
@@ -260,7 +283,7 @@ def checkConfig( config ):
     except ValueError:
         log.warning( "Category icon width in configuration file is NOT an integer, using default: %d" % PYD_ICON_CATEGORY_WIDTH )
     if PYD_ICON_CATEGORY_WIDTH < 0:
-        error("Category icon width must be greater than 0")
+        error( "Category icon width must be greater than 0" )
     os.environ[ 'PYD_ICON_CATEGORY_WIDTH' ] = str(PYD_ICON_CATEGORY_WIDTH)
     
     try:
@@ -268,7 +291,7 @@ def checkConfig( config ):
     except ValueError:
         log.warning( "Category icon height in configuration file is NOT an integer, using default: %d" % PYD_ICON_CATEGORY_HEIGHT )
     if PYD_ICON_CATEGORY_HEIGHT < 0:
-        error("Category icon height must be greater than 0")
+        error( "Category icon height must be greater than 0" )
     os.environ[ 'PYD_ICON_CATEGORY_HEIGHT' ] = str(PYD_ICON_CATEGORY_HEIGHT)
     
     PYD_ICON_DEFAULT = os.path.join( PYD_IMAGE_DIR, PYD_ICON_MASK % "_default_%sx%s" % (PYD_ICON_WIDTH, PYD_ICON_HEIGHT) )
@@ -281,7 +304,7 @@ def checkConfig( config ):
     except ValueError:
         log.warning( "Icon scale factor in configuration file is NOT a float, using default: %0.3f" % PYD_ICON_SCALE_FACTOR )
     if PYD_ICON_SCALE_FACTOR <= 0.0:
-        error("Icon scale factor must be greater than 0")
+        error( "Icon scale factor must be greater than 0" )
     os.environ[ 'PYD_ICON_SCALE_FACTOR' ] = str(PYD_ICON_SCALE_FACTOR)
 
     try:
@@ -290,7 +313,7 @@ def checkConfig( config ):
         log.warning( "TV icon scale factor in configuration file is NOT a float, using default: %0.3f" % \
             PYD_TVICON_SCALE_FACTOR )
     if PYD_TVICON_SCALE_FACTOR <= 0.0:
-        error("TV icon scale factor must be greater than 0")
+        error( "TV icon scale factor must be greater than 0" )
     os.environ[ 'PYD_TVICON_SCALE_FACTOR' ] = str(PYD_TVICON_SCALE_FACTOR)
     
     PYD_SCR_MAKE_CAT_ICON = config.get( scriptSectionName, 'script.make.category.icon' )
@@ -357,9 +380,11 @@ def debug():
     log.debug( "YAMJ directory = %s" % PYD_YAMJ_DIR )
     log.debug( "YAMJ directory after normalisation = %s" % PYD_YAMJ_DIR )
     log.debug( "Clean output directory = %s" % PYD_CLEAN_OUT_DIR )
+    log.debug( "Language = %s" % PYD_LANG ) 
     log.debug( "Theme directory = %s" % PYD_THEME_DIR )
     log.debug( "Template directory = %s" % PYD_TPL_DIR )
     log.debug( "Image directory = %s" % PYD_IMAGE_DIR )
+    log.debug( "Locale directory = %s" % PYD_LOCALE_DIR )
     log.debug( "Category dune_folder.txt template = %s" % PYD_CAT_DUFO_TPL )
     log.debug( "Subcategory dune_folder.txt template = %s" % PYD_SUBCAT_DUFO_TPL )
     log.debug( "Top-level dune_folder.txt template = %s" % PYD_TL_DUFO_TPL )
@@ -369,7 +394,9 @@ def debug():
     log.debug( "Background image = %s" % PYD_BCKGR_IMAGE )
     log.debug( "Logo image = %s" % PYD_LOGO_IMAGE )
     log.debug( "Icon file name = %s" % PYD_ICON_FILE )
+    log.debug( "Icon category file name = %s" % PYD_ICON_CAT_FILE )
     log.debug( "File for selected icon = %s" % PYD_ICON_SEL_FILE )
+    log.debug( "File for selected category icon = %s" % PYD_ICON_CAT_SEL_FILE )
     log.debug( "Default icon = %s" % PYD_ICON_DEFAULT )
     log.debug( "Thumbnail icon file name = %s" % PYD_ICON_THUMB_FILE )
     log.debug( "Separated 'selected' icon will be used = %s" % PYD_ICON_USE_SEL )
