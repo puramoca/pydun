@@ -10,7 +10,7 @@
 #env | sort | grep PYD >> /tmp/Movie_env_vars.sh
 #echo " " >> /tmp/Movie_env_vars.sh
 
-. ../../../test/BourneIdentity.sh
+#. ../../../test/BourneIdentity.sh
 
 genrectlbl()
 {
