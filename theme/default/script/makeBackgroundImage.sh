@@ -1,8 +1,8 @@
 #!/bin/bash
  
 # It is totally up to this script to produce background for given movie - whether
-# it'll copy existing one or use any graphic tool to do so, we don't care. 
-
+# it'll copy existing one from some directory or use any graphic tool to make
+# a new one, we don't care. 
 # Result must be in file pointed to by ${PYD_DST_BCKGR_IMAGE}
 
 # Testing remnants
@@ -254,7 +254,7 @@ else
 fi
 
 # Frame rate
-genrectlbl "${PYD_MOV_FPS}" 40 WhiteSmoke 26 ${TMPFRAMERATE}
+genrectlbl "${PYD_MOV_FPS} fps" 40 WhiteSmoke 26 ${TMPFRAMERATE}
 
 # Movie aspect
 genrectlbl "${PYD_MOV_ASPECT}" 40 skyblue 26 ${TMPMOVASPECT}
