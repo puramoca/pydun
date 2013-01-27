@@ -23,13 +23,17 @@ class PydMovieParser(xml.sax.handler.ContentHandler):
     
     def __init__(self):
         self.currData = None
+        self.currElem = None
         self.logger = logging.getLogger( __name__ )
         self.movies = []
         self.movie = None
-        self.movieElems = ( 'title', 'originalTitle', 'year', 'releaseDate', 'top250', 'plot', 'outline', 'quote', 'tagline', 'country', 'company', 'runtime', 'certification', 'language', 'subtitles', 'container', 'videoCodec', 'audioCodec', 'audioChannels', 'resolution', 'videoSource', 'videoOutput', 'aspect', 'fps', 'season', 'set' )
+        # Regular movie elements that do not require any special handling
+        self.movieElems = ( 'year', 'releaseDate', 'top250', 'plot', 'outline', 'quote', 'tagline', 'country', 'company', 'runtime', 'certification', 'language', 'subtitles', 'container', 'videoCodec', 'audioCodec', 'audioChannels', 'resolution', 'videoSource', 'videoOutput', 'aspect', 'fps', 'season', 'set' )
+        # Movie elements that can contain characters like & or '
+        self.movieXmlSensitive = ( 'title', 'originalTitle' )
         # Some attributes we like without special chars
         self.movieReplAttrs = ( 'baseFilenameBase', 'baseFilename' )
-        # Some attributes we must unquote
+        # Some attributes we must urllib-unquote
         self.movieUnqAttrs = ( 'posterFile', 'detailPosterFile', 'fanartFile', 'thumbnail', 'bannerFile', 'clearlogoFile', 'clearartFile', 'tvthumbFile' )
         self.movieListAttrs = ( 'director', 'writer', 'actor' )
         self.movieHashAttrs = ( 'rating' )
@@ -51,19 +55,6 @@ class PydMovieParser(xml.sax.handler.ContentHandler):
             sys.exit(errCode)
 
 
-    # Replace special characters in filename
-    def replaceSpeChars(self, aStr):
-        if not aStr:
-            return aStr
-        lStr = aStr.replace( '[', '' )
-        lStr = lStr.replace( ']', '' )
-        lStr = lStr.replace( '(', '' )
-        lStr = lStr.replace( ')', '' )
-        lStr = lStr.replace( '.', '_' )
-        lStr = lStr.replace( ':', '' )
-        return lStr
-
-
     def startElement(self, aName, attrs):
         if aName.lower() == 'movie':
             self.movie = PydMovie.PydMovie()
@@ -82,7 +73,10 @@ class PydMovieParser(xml.sax.handler.ContentHandler):
             self.moviepart = PydMoviePart.PydMoviePart()
         elif aName.lower() in self.moviePartsAttrs:
             if attrs.has_key( 'part' ) and not self.moviepart.part:
-                self.moviepart.part = int(attrs[ 'part' ])
+                self.moviepart.part = int( attrs[ 'part' ] )
+        elif aName in self.movieXmlSensitive:
+            setattr( self.movie, aName, '' )
+        self.currElem = aName
 
 
     def endElement(self, aName):
@@ -100,6 +94,8 @@ class PydMovieParser(xml.sax.handler.ContentHandler):
             setattr( self.movie, aName, self.currData )
         elif aName in self.movieUnqAttrs:
             setattr( self.movie, aName, urllib.unquote(self.currData) )
+        elif aName in self.movieXmlSensitive:
+			setattr( self.movie, aName, getattr( self.movie, aName ).strip() )
         elif aName in self.movieListAttrs:
             if aName == 'director' and self.currData not in self.movie.directors:
                 self.movie.directors.append( self.currData )
@@ -118,6 +114,8 @@ class PydMovieParser(xml.sax.handler.ContentHandler):
         if data in ( 'UNKNOWN' ):
             self.currData = ''
         else:
-            self.currData = xml.sax.saxutils.escape(data).encode('utf-8')
-        
+            self.currData = data.strip().encode('utf-8')
+        # print "'" + self.currData + "'"
+        if self.currElem in self.movieXmlSensitive and self.currData != '':
+            setattr( self.movie, self.currElem, getattr(self.movie, self.currElem) + self.currData + " " )		
 ### end class PydMovieParser
